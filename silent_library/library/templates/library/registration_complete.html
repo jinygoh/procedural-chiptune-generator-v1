@@ -1,0 +1,21 @@
+{% extends 'library/base.html' %}
+
+{% block title %}Registration Complete - Silent Library{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Registration Complete!</h2>
+                    <p class="text-center">Thank you for registering. You can now log in to your account.</p>
+                    <div class="text-center">
+                        <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

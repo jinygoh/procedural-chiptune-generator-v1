@@ -1,0 +1,94 @@
+{% extends 'library/base.html' %}
+
+{% block title %}Manage Books - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Manage Book Catalog</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'add_book' %}" class="btn btn-success">
+                <i class="fas fa-plus-circle"></i> Add New Book
+            </a>
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    {% if books %}
+    <div class="table-responsive shadow-sm">
+        <table class="table table-striped table-hover table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Authors</th>
+                    <th>Genres</th>
+                    <th>ISBN</th>
+                    <th>Available</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for book in books %}
+                <tr>
+                    <td>{{ book.id }}</td>
+                    <td>{{ book.title }}</td>
+                    <td>{{ book.authors.all|join:", " }}</td>
+                    <td>{{ book.genres.all|join:", " }}</td>
+                    <td>{{ book.isbn }}</td>
+                    <td>
+                        {% if book.available_copies > 0 %}
+                            <span class="badge bg-success">Yes</span>
+                        {% else %}
+                            <span class="badge bg-danger">No</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'edit_book' book.id %}" class="btn btn-sm btn-primary mb-1 me-1" title="Edit">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        {# Delete should ideally be a POST request via a form #}
+                        <form action="{% url 'delete_book' book.id %}" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this book?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger mb-1" title="Delete">
+                                <i class="fas fa-trash-alt"></i> Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info mt-3">
+        No books found in the catalog. <a href="{% url 'add_book' %}" class="alert-link">Add the first book now!</a>
+    </div>
+    {% endif %}
+    
+    {# Placeholder for pagination if the book list is long #}
+    {# 
+    <nav aria-label="Page navigation example" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+        </ul>
+    </nav> 
+    #}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+{% endblock %}

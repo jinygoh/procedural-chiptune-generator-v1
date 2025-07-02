@@ -1,0 +1,53 @@
+{% extends 'library/base.html' %}
+
+{% block title %}Search Books - Silent Library{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <h2 class="mb-4">Search Our Book Catalog</h2>
+            <form method="get" class="mb-4">
+                <div class="input-group input-group-lg shadow-sm">
+                    <input type="text" name="q" class="form-control" placeholder="Search by title, author, genre, ISBN..." value="{{ query|default:'' }}">
+                    <button class="btn btn-primary" type="submit">Search</button>
+                </div>
+            </form>
+
+            {% if query %}
+                <h3 class="mb-3">Search Results for "{{ query }}"</h3>
+            {% endif %}
+
+            {% if books %}
+                <div class="list-group shadow-sm">
+                    {% for book in books %}
+                        <a href="{% url 'book_detail' book.id %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ book.title }}</h5>
+                                <small class="text-muted">
+                                    {% if book.available_copies > 0 %}
+                                        <span class="badge bg-success">Available</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Borrowed</span>
+                                    {% endif %}
+                                </small>
+                            </div>
+                            <p class="mb-1">By {{ book.authors.all|join:", " }}</p>
+                            <small class="text-muted">Genre: {{ book.genres.all|join:", " }} | ISBN: {{ book.isbn|default:'N/A' }}</small>
+                        </a>
+                    {% endfor %}
+                </div>
+                {# Add pagination if many results - to be implemented #}
+            {% elif query %}
+                <div class="alert alert-info" role="alert">
+                    No books found matching your search criteria for "{{ query }}". Please try different keywords.
+                </div>
+            {% else %}
+                 <div class="alert alert-secondary" role="alert">
+                    Enter keywords above to search for books by title, author, or genre.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

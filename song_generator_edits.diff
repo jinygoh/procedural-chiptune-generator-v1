@@ -1,0 +1,122 @@
+--- a/song_generator.py
++++ b/song_generator.py
+@@ -257,6 +257,59 @@
+     return song
+
+
++def generate_events_for_section(section_detail, chord_prog_for_section, mood, channel_map):
++    """
++    Helper function to generate all layer events for a single section.
++    `section_detail` should contain `start_beat`, `duration_beats`, `key_root_midi`, `key_type`.
++    Returns a dictionary: {"TrackName": [event1, event2], ...}
++    """
++    section_events = {track_name: [] for track_name in Song().tracks.keys()} # Initialize with all track names
++
++    current_song_time_beats = section_detail['start_beat'] # Events should be timed relative to section start for internal consistency, then offset.
++                                                          # OR, generate with absolute time based on section_start_beat. The latter is simpler here.
++    section_duration_beats = section_detail['duration_beats']
++    key_root_midi = section_detail['key_root_midi']
++    key_type = section_detail['key_type']
++
++    # Pads
++    section_events["Pads"].extend(generate_pads(
++        chord_prog_for_section, current_song_time_beats, section_duration_beats,
++        channel_map["Pads"], key_root_midi, key_type
++    ))
++    # Bassline
++    section_events["Bassline"].extend(generate_bassline(
++        chord_prog_for_section, current_song_time_beats, section_duration_beats,
++        channel_map["Bassline"], key_root_midi, key_type, mood
++    ))
++    # Melody (Primary)
++    main_melody_events_section = generate_melody_line(
++        chord_prog_for_section, current_song_time_beats, section_duration_beats,
++        channel_map["Melody"], key_root_midi, key_type, mood, layer_name="Melody"
++    )
++    section_events["Melody"].extend(main_melody_events_section)
++    # Harmony Line
++    section_events["Harmony Line"].extend(generate_harmony_line(
++        main_melody_events_section, chord_prog_for_section, current_song_time_beats, section_duration_beats,
++        channel_map["Harmony Line"], key_root_midi, key_type, mood
++    ))
++    # Counter-Melody
++    section_events["Counter-Melody"].extend(generate_counter_melody(
++        main_melody_events_section, chord_prog_for_section, current_song_time_beats, section_duration_beats,
++        channel_map["Counter-Melody"], key_root_midi, key_type, mood
++    ))
++    # Drums
++    section_events["Drums"].extend(generate_drums(
++        current_song_time_beats, section_duration_beats, channel_map["Drums"], mood
++    ))
++    return section_events
++
++def regenerate_specific_section(song_object, section_index, channel_map):
++    """
++    Regenerates the musical content for a specific section within the song_object.
++    The section's duration, key, and overall mood are preserved.
++    The chord progression for that section IS regenerated.
++    Modifies song_object.tracks and song_object.section_details directly. Returns modified song_object.
++    """
++    if not (0 <= section_index < len(song_object.section_details)):
++        print(f"Error: Invalid section_index {section_index} for regeneration.")
++        return song_object
++
++    section_detail = song_object.section_details[section_index]
++    key_root_midi = section_detail['key_root_midi']
++    key_type = section_detail['key_type']
++    section_start_beat = section_detail['start_beat']
++    section_duration_beats = section_detail['duration_beats']
++
++    # Regenerate chord progression for this section
++    num_chords_in_section = int(section_duration_beats / BAR_LENGTH_BEATS) * CHORDS_PER_BAR
++    new_chord_prog_for_section = music_theory.generate_chord_progression(
++        key_root_midi, key_type, num_chords_in_section
++    )
++    song_object.section_details[section_index]['chord_progression'] = new_chord_prog_for_section
++
++    # Generate new events for this section
++    new_events_for_section_by_track = generate_events_for_section(
++        section_detail, new_chord_prog_for_section, song_object.mood, channel_map
++    )
++
++    # Remove old events from all tracks that fall within this section's time window
++    for track_name in song_object.tracks.keys():
++        song_object.tracks[track_name] = [
++            event for event in song_object.tracks[track_name]
++            if not (section_start_beat <= event.time_start < section_start_beat + section_duration_beats)
++        ]
++        # Add new events
++        song_object.tracks[track_name].extend(new_events_for_section_by_track.get(track_name, []))
++        # Re-sort track events by time (important!)
++        song_object.tracks[track_name].sort(key=lambda e: e.time_start)
++
++    return song_object
++
++
+ # --- Example Usage (for testing this module) ---
+ if __name__ == "__main__":
+     print("Song Generator Module Test")
+@@ -321,3 +374,21 @@
+     assert sad_song.key_type == "minor"
+     assert len(sad_song.tracks["Melody"]) > 0
+     print("Sad song generation seems OK.")
++
++    # Test section regeneration
++    print("\nTesting section regeneration...")
++    test_song_for_regen = generate_full_song(mood="Happy", key_root_name="G", key_octave=4, bpm=130)
++    section_to_regen_idx = 1 # Regenerate the first Verse
++
++    # Get events from a track in that section before regeneration for comparison
++    original_melody_events_in_section = []
++    if section_to_regen_idx < len(test_song_for_regen.section_details):
++        s_detail = test_song_for_regen.section_details[section_to_regen_idx]
++        original_melody_events_in_section = [
++            e for e in test_song_for_regen.tracks["Melody"]
++            if s_detail['start_beat'] <= e.time_start < s_detail['start_beat'] + s_detail['duration_beats']
++        ]
++        print(f"Original melody in section {section_to_regen_idx} had {len(original_melody_events_in_section)} events.")
++
++    regenerated_song = regenerate_specific_section(test_song_for_regen, section_to_regen_idx, CHANNEL_MAP)
++    print(f"Song after regenerating section {section_to_regen_idx}:")
++    # A more thorough test would compare events before/after for the specific section.
++    print(f"  Melody track now has {len(regenerated_song.tracks['Melody'])} events total.")

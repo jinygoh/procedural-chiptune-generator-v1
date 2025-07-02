@@ -1,0 +1,58 @@
+{% extends 'library/base.html' %}
+
+{% block content %}
+
+  <div class="card mb-4">
+    <div class="card-header">Account Details</div>
+    <div class="card-body">
+      <p><strong>Username:</strong> {{ user.username }}</p>
+      <p><strong>Email:</strong> {{ user.email }}</p>
+      <p><strong>First Name:</strong> {{ user.first_name }}</p>
+      <p><strong>Last Name:</strong> {{ user.last_name }}</p>
+    </div>
+  </div>
+
+  <h2>Edit Profile</h2>
+
+  <div class="card mb-4">
+    <div class="card-header">Edit First and Last Name</div>
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" name="edit_profile" class="btn btn-primary">Save Changes</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header">Edit Username and Email</div>
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        {{ username_email_form.as_p }}
+        <button type="submit" name="edit_username_email" class="btn btn-primary">Save Changes</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">Change Password</div>
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        {% for field in password_form %}
+          <div class="form-group">
+            {{ field.label_tag }}
+            {{ field }}
+            {% for error in field.errors %}
+              <div class="alert alert-danger">{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+
+        <button type="submit" name="change_password" class="btn btn-primary">Change Password</button>
+      </form>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,25 @@
+# Django-specific
+*.pyc
+__pycache__/
+
+# SQLite database
+db.sqlite3
+
+# Environment variables and secrets
+.env
+
+# VS Code settings (optional, depending on your editor)
+.vscode/
+
+# Compiled files
+*.log
+
+# Migrations (optional, depending on your workflow)
+*/migrations/*.pyc
+*/migrations/__pycache__/
+
+# Media files (if you have file uploads)
+media/
+
+# Staticfiles (if generated locally)
+staticfiles/
