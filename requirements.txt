@@ -2,5 +2,4 @@ numpy
 sounddevice
 scipy
 mido
-pydub
 # For now, keeping it minimal for playback.

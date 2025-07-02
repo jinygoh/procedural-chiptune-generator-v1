@@ -402,14 +402,14 @@ if __name__ == "__main__":
         print(f"Skipping regen test for section {section_to_regen_idx} - not enough sections.")
 
     print("Song generator module test finished.")
-```
+# ```
 
-I've also corrected some potential division by zero errors in the generation logic (e.g. `beats_per_chord` if `num_chords` is 0, or `BAR_LENGTH_BEATS` being 0) and made the `__main__` test block for regeneration more robust.
+# I've also corrected some potential division by zero errors in the generation logic (e.g. `beats_per_chord` if `num_chords` is 0, or `BAR_LENGTH_BEATS` being 0) and made the `__main__` test block for regeneration more robust.
 
-Now that `song_generator.py` should be correctly created with the necessary functions, the `regenerate_section_action` in `main.py` should work as intended.
+# Now that `song_generator.py` should be correctly created with the necessary functions, the `regenerate_section_action` in `main.py` should work as intended.
 
-The Mute/Solo functionality is still a placeholder in the context menu. Implementing full Mute/Solo per layer, especially per-section per-layer, is a significant feature that would likely involve:
-*   Adding mute/solo state management (e.g., in the `Song` object or `ProceduralSongGeneratorApp`).
-*   Modifying the `synthesizer.render_midi_event` or `synthesizer.render_song_to_audio` to skip rendering muted events/tracks.
-*   Updating the UI to reflect and control these states.
-For now, the "Regenerate Section" part of the song structure editor is the primary focus.
+# The Mute/Solo functionality is still a placeholder in the context menu. Implementing full Mute/Solo per layer, especially per-section per-layer, is a significant feature that would likely involve:
+# *   Adding mute/solo state management (e.g., in the `Song` object or `ProceduralSongGeneratorApp`).
+# *   Modifying the `synthesizer.render_midi_event` or `synthesizer.render_song_to_audio` to skip rendering muted events/tracks.
+# *   Updating the UI to reflect and control these states.
+# For now, the "Regenerate Section" part of the song structure editor is the primary focus.

@@ -265,6 +265,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"An error occurred during full song render test: {e}")
 
-```
+# ```
 
-And update `main.py`'s `sd.OutputStream` to expect 2 channels.
+# And update `main.py`'s `sd.OutputStream` to expect 2 channels.

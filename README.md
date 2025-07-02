@@ -22,6 +22,7 @@ The application relies on the following Python libraries:
 *   `scipy`: For signal processing (e.g., EQ filters, WAV export).
 *   `mido`: For MIDI file processing (export).
 *   `pydub`: For audio manipulation and MP3 export.
+*   `pydub`: For audio manipulation and MP3 export.
 *   `tkinter`: (Standard library) For the graphical user interface.
 
 ### Installation

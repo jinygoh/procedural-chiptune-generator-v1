@@ -149,18 +149,18 @@ if __name__ == "__main__":
     # Quiet signal should remain quiet with this simple peak normalization
     assert np.allclose(np.max(np.abs(stereo_quiet)), np.max(np.abs(mastered_quiet))), "Quiet signal changed unexpectedly"
     print("Audio processing tests passed (basic checks).")
-```
-The file `audio_processing.py` now includes:
-*   `TRACK_LEVELS` and `TRACK_PANNING` dictionaries.
-*   `apply_panning(audio_mono, pan_value)`: Converts a mono signal to stereo and applies panning. I've used a slightly more standard linear panning logic.
-*   `apply_eq_track(audio_data_mono, track_name, sample_rate)`: Applies a 4th-order Butterworth high-pass filter (cutoff 90Hz) to non-bass/kick/pad tracks using `scipy.signal`. Error handling for invalid cutoff is included. Other EQs are still conceptual.
-*   `apply_mastering_chain(stereo_audio_mix)`: Implements peak normalization to a target amplitude (approx -0.5 dBFS). This acts as a simple limiter by ensuring the output doesn't exceed this level. True compression or more advanced limiting is not yet included.
-*   Basic tests in the `if __name__ == "__main__":` block.
+# ```
+# The file `audio_processing.py` now includes:
+# *   `TRACK_LEVELS` and `TRACK_PANNING` dictionaries.
+# *   `apply_panning(audio_mono, pan_value)`: Converts a mono signal to stereo and applies panning. I've used a slightly more standard linear panning logic.
+# *   `apply_eq_track(audio_data_mono, track_name, sample_rate)`: Applies a 4th-order Butterworth high-pass filter (cutoff 90Hz) to non-bass/kick/pad tracks using `scipy.signal`. Error handling for invalid cutoff is included. Other EQs are still conceptual.
+# *   `apply_mastering_chain(stereo_audio_mix)`: Implements peak normalization to a target amplitude (approx -0.5 dBFS). This acts as a simple limiter by ensuring the output doesn't exceed this level. True compression or more advanced limiting is not yet included.
+# *   Basic tests in the `if __name__ == "__main__":` block.
 
-Next, I need to modify `synthesizer.py` to:
-1.  Use `TRACK_LEVELS` when rendering individual MIDI events.
-2.  Apply the track-specific EQ using `apply_eq_track`.
-3.  Convert the mono track audio to stereo using `apply_panning`.
-4.  Sum these stereo tracks into a final stereo mix.
-5.  Pass this final stereo mix through `apply_mastering_chain`.
-This means `render_song_to_audio` will now produce a stereo NumPy array. `main.py`'s `sd.OutputStream` will also need to be updated for 2 channels.
+# Next, I need to modify `synthesizer.py` to:
+# 1.  Use `TRACK_LEVELS` when rendering individual MIDI events.
+# 2.  Apply the track-specific EQ using `apply_eq_track`.
+# 3.  Convert the mono track audio to stereo using `apply_panning`.
+# 4.  Sum these stereo tracks into a final stereo mix.
+# 5.  Pass this final stereo mix through `apply_mastering_chain`.
+# This means `render_song_to_audio` will now produce a stereo NumPy array. `main.py`'s `sd.OutputStream` will also need to be updated for 2 channels.

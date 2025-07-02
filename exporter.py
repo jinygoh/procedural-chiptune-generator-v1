@@ -1,7 +1,6 @@
 import numpy as np
 import mido
 from scipy.io import wavfile
-from pydub import AudioSegment
 import math
 
 # --- MIDI Export ---
@@ -134,48 +133,6 @@ def save_wav_file(audio_data_stereo, filepath, sample_rate):
     print(f"WAV file saved to {filepath}")
 
 
-# --- MP3 Export ---
-def save_mp3_file(audio_data_stereo, filepath, sample_rate, bitrate="192k"):
-    """
-    Saves the stereo audio data as an MP3 file using pydub.
-    audio_data_stereo: NumPy array (N, 2), float32, range [-1.0, 1.0]
-    Requires ffmpeg or libav to be installed and in PATH for pydub.
-    """
-    if not isinstance(audio_data_stereo, np.ndarray) or audio_data_stereo.ndim != 2 or audio_data_stereo.shape[1] != 2:
-        raise ValueError("Audio data must be a stereo NumPy array (N, 2).")
-    if audio_data_stereo.dtype != np.float32:
-         audio_data_stereo = audio_data_stereo.astype(np.float32) # Ensure float32
-
-    # Convert float32 NumPy array (range -1.0 to 1.0) to int16 (range -32768 to 32767)
-    # Pydub's AudioSegment.from_mono_audiosegments or from_file expects data that can be
-    # converted to raw audio bytes. For PCM, this is often int16.
-    # Max value for int16
-    int16_max = np.iinfo(np.int16).max
-    audio_data_int16 = (audio_data_stereo * int16_max).astype(np.int16)
-
-    # Create an AudioSegment.
-    # Ensure channels=2 for stereo. sample_width=2 for 16-bit.
-    try:
-        audio_segment = AudioSegment(
-            data=audio_data_int16.tobytes(),
-            sample_width=audio_data_int16.dtype.itemsize, # Should be 2 for int16
-            frame_rate=sample_rate,
-            channels=2 # Stereo
-        )
-    except Exception as e:
-        raise RuntimeError(f"Error creating AudioSegment for MP3 export: {e}. Check pydub installation and data format.")
-
-    try:
-        audio_segment.export(filepath, format="mp3", bitrate=bitrate)
-        print(f"MP3 file saved to {filepath} with bitrate {bitrate}.")
-    except Exception as e: # pydub often raises generic Exception or specific like CouldntEncodeError
-        error_message = f"Failed to export MP3: {e}. " \
-                        "This often means FFmpeg or LAME is not installed or not found in your system's PATH. " \
-                        "Please ensure FFmpeg (recommended) or LAME is installed correctly."
-        print(error_message) # Also print to console for backend logging
-        raise RuntimeError(error_message)
-
-
 if __name__ == '__main__':
     # Basic tests (conceptual, as they need a Song object and audio data)
     print("Exporter Module Basic Tests")
@@ -224,13 +181,5 @@ if __name__ == '__main__':
         print("Test WAV export successful (file created: test_export.wav).")
     except Exception as e:
         print(f"Test WAV export failed: {e}")
-
-    try:
-        # This test for MP3 will likely fail if ffmpeg is not in the test environment's PATH
-        save_mp3_file(mock_stereo_audio, "test_export.mp3", sample_rate_test)
-        print("Test MP3 export successful (file created: test_export.mp3).")
-    except Exception as e:
-        print(f"Test MP3 export failed: {e}")
-        print(" (This is expected if FFmpeg/LAME is not installed in the test environment.)")
 
     print("Exporter tests finished.")
